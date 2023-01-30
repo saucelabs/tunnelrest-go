@@ -1,0 +1,33 @@
+---
+name: Lint project
+on: [push, pull_request]  # yamllint disable-line rule:truthy
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v3
+
+      - name: Set version env variables
+        run: |
+          cat .version >> $GITHUB_ENV
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Install `tidied`
+        run: go install gitlab.com/jamietanna/tidied@latest
+
+      - name: Ensure `go mod tidy` has been run
+        run: make tidied
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: "${{env.GOLANGCI_LINT_VERSION}}"
+
+      - name: Run unit test
+        run: make test coverage
