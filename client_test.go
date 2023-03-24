@@ -315,10 +315,11 @@ func TestListAllTunnelStates(t *testing.T) {
 		Username: tunnelUser,
 	}
 
-	tunnels, err := client.ListAllTunnelStates()
+	limit := 1
+	tunnels, err := client.ListAllTunnelStates(limit)
 	assert.NoErrorf(err, "client.ListAllTunnelStates errored %+v\n", err)
 
-	assert.Equalf(1, len(tunnels),
+	assert.Equalf(limit, len(tunnels),
 		"ListAllTunnelStates unexpected response len: %+v\n", tunnels)
 
 	assert.Equalf(tunID, tunnels[0].ID,

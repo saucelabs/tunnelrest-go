@@ -18,8 +18,8 @@ func (c *Client) CreateTunnel(
 
 // ListAllTunnelStates returns all the tunnels (including not currently running)
 // for a given user.
-func (c *Client) ListAllTunnelStates() ([]TunnelState, error) {
-	allTunnels, err := c.listAllTunnels()
+func (c *Client) ListAllTunnelStates(limit int) ([]TunnelState, error) {
+	allTunnels, err := c.listAllTunnels(limit)
 	if err != nil {
 		return nil, err
 	}
