@@ -284,9 +284,13 @@ func (c *Client) listTunnels(protocol Protocol) ([]TunnelState, error) {
 }
 
 // Returns all the user tunnels (including already terminated ones).
-func (c *Client) listAllTunnels() (map[string][]TunnelState, error) {
+func (c *Client) listAllTunnels(limit int) (map[string][]TunnelState, error) {
 	tunnels := map[string][]TunnelState{}
 	url := fmt.Sprintf("%s/%s/all_tunnels", c.BaseURL, c.getTunnelOwnerUsername())
+
+	if limit > 0 {
+		url = fmt.Sprintf("%s?limit=%d", url, limit)
+	}
 
 	err := c.executeRequest(context.Background(), http.MethodGet, url, nil, &tunnels)
 
