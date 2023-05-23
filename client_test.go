@@ -76,6 +76,8 @@ var scConfiguration = ClientConfiguration{
 	ClientStatusTimeout:  15,
 	KGPHandshakeTimeout:  15,
 	MaxMissedAcks:        300,
+	ScproxyWriteLimit:    100,
+	ScproxyReadLimit:     100,
 	ServerStatusInterval: 10,
 	ServerStatusTimeout:  5,
 	StartTimeout:         45,
