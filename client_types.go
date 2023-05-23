@@ -119,6 +119,8 @@ type ClientConfiguration struct {
 	ClientStatusInterval int             `json:"client_status_interval,omitempty"`
 	ClientStatusTimeout  int             `json:"client_status_timeout,omitempty"`
 	Regions              []region.Region `json:"regions,omitempty"`
+	ScproxyWriteLimit    int             `json:"scproxy_write_limit,omitempty"`
+	ScproxyReadLimit     int             `json:"scproxy_read_limit,omitempty"`
 	ServerStatusInterval int             `json:"server_status_interval,omitempty"`
 	ServerStatusTimeout  int             `json:"server_status_timeout,omitempty"`
 	StartTimeout         int             `json:"start_timeout,omitempty"`

@@ -16,8 +16,9 @@ const (
 		"YWNrcyI6MzAwLCJjbGllbnRfc3RhdHVzX2ludGVydmFsIjozMCwiY2xpZW50X3N0" +
 		"YXR1c190aW1lb3V0IjoxNSwicmVnaW9ucyI6W3sibmFtZSI6InVzLXdlc3QiLCJ1" +
 		"cmwiOiJodHRwczovL2FwaS51cy13ZXN0LTEuc2F1Y2VsYWJzLmNvbS9yZXN0L3Yx" +
-		"In1dLCJzZXJ2ZXJfc3RhdHVzX2ludGVydmFsIjoxMCwic2VydmVyX3N0YXR1c190" +
-		"aW1lb3V0Ijo1LCJzdGFydF90aW1lb3V0Ijo0NX0" +
+		"In1dLCJzY3Byb3h5X3dyaXRlX2xpbWl0IjoxMDAsInNjcHJveHlfcmVhZF9saW1p" +
+		"dCI6MTAwLCJzZXJ2ZXJfc3RhdHVzX2ludGVydmFsIjoxMCwic2VydmVyX3N0YXR1" +
+		"c190aW1lb3V0Ijo1LCJzdGFydF90aW1lb3V0Ijo0NX0" +
 		"%3D&region=us-west&tunnel_name=my-tunnel&tunnel_pool=true"
 )
 
