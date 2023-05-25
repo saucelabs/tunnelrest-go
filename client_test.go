@@ -118,13 +118,12 @@ func createTunnel(url string) (*Client, TunnelStateWithMessages, error) {
 }
 
 func createTunnelWithTime(url string, timeout time.Duration) (*Client, TunnelStateWithMessages, error) {
-	client, _ := New(
-		url,
-		Options{
-			User:     tunnelUser,
-			Password: "password",
-		},
-	)
+	client := &Client{
+		BaseURL:   url,
+		UserAgent: "test",
+		Username:  tunnelUser,
+		Password:  "password",
+	}
 
 	request := Request{
 		DomainNames: []string{"sauce-connect.proxy"},
@@ -199,10 +198,11 @@ func TestTunnelState(t *testing.T) {
 
 	defer server.Close()
 
-	client := Client{
-		BaseURL:  server.URL,
-		Password: "password",
-		Username: tunnelUser,
+	client := &Client{
+		BaseURL:   server.URL,
+		UserAgent: "test",
+		Password:  "password",
+		Username:  tunnelUser,
 	}
 
 	serverInfo, err := client.TunnelState(context.Background(), tunID)
@@ -241,10 +241,11 @@ func TestTunnelStateShutdownReason(t *testing.T) {
 
 	defer server.Close()
 
-	client := Client{
-		BaseURL:  server.URL,
-		Password: "password",
-		Username: tunnelUser,
+	client := &Client{
+		BaseURL:   server.URL,
+		UserAgent: "test",
+		Password:  "password",
+		Username:  tunnelUser,
 	}
 
 	serverInfo, err := client.TunnelState(context.Background(), tunID)
@@ -266,14 +267,16 @@ func TestListTunnels(t *testing.T) {
 			name: "Get user tunnels",
 			path: fmt.Sprintf("/%s/tunnels", tunnelUser),
 			client: Client{
-				Password: "password",
-				Username: tunnelUser,
+				UserAgent: "test",
+				Password:  "password",
+				Username:  tunnelUser,
 			},
 		},
 		{
 			name: "Get other user tunnels",
 			path: fmt.Sprintf("/%s/tunnels", otherUsername),
 			client: Client{
+				UserAgent:           "test",
 				Password:            "password",
 				Username:            tunnelUser,
 				TunnelOwnerUsername: otherUsername,
@@ -311,10 +314,11 @@ func TestListAllTunnelStates(t *testing.T) {
 
 	defer server.Close()
 
-	client := Client{
-		BaseURL:  server.URL,
-		Password: "password",
-		Username: tunnelUser,
+	client := &Client{
+		BaseURL:   server.URL,
+		UserAgent: "test",
+		Password:  "password",
+		Username:  tunnelUser,
 	}
 
 	limit := 1
@@ -367,6 +371,7 @@ func TestListSharedTunnelStates(t *testing.T) {
 		defer server.Close()
 
 		tc.client.BaseURL = server.URL
+		tc.client.UserAgent = "test"
 		method := tc.client.ListSharedVPNStates
 		if tc.proto == SCProtocol {
 			method = tc.client.ListSharedTunnelStates
@@ -431,6 +436,7 @@ func TestListSharedTunnels(t *testing.T) {
 		defer server.Close()
 
 		tc.client.BaseURL = server.URL
+		tc.client.UserAgent = "test"
 		method := tc.client.ListSharedTunnels
 		if tc.proto == SCProtocol {
 			method = tc.client.ListSharedTunnels
@@ -470,8 +476,9 @@ func TestListVPNProxiesForUser(t *testing.T) {
 	})
 	defer server.Close()
 
-	client := Client{
+	client := &Client{
 		BaseURL:             server.URL,
+		UserAgent:           "test",
 		Password:            "password",
 		TunnelOwnerUsername: otherUsername,
 		Username:            tunnelUser,
@@ -507,8 +514,9 @@ func TestListSharedVPNProxiesForUser(t *testing.T) {
 	})
 	defer server.Close()
 
-	client := Client{
+	client := &Client{
 		BaseURL:             server.URL,
+		UserAgent:           "test",
 		Password:            "password",
 		TunnelOwnerUsername: otherUsername,
 		Username:            tunnelUser,
@@ -540,8 +548,9 @@ func TestListVPNStatesForUser(t *testing.T) {
 	})
 	defer server.Close()
 
-	client := Client{
+	client := &Client{
 		BaseURL:             server.URL,
+		UserAgent:           "test",
 		Password:            "password",
 		TunnelOwnerUsername: otherUsername,
 		Username:            tunnelUser,
@@ -576,8 +585,9 @@ func TestListTunnelStatesForUser(t *testing.T) {
 	})
 	defer server.Close()
 
-	client := Client{
+	client := &Client{
 		BaseURL:             server.URL,
+		UserAgent:           "test",
 		Password:            "password",
 		TunnelOwnerUsername: otherUsername,
 		Username:            tunnelUser,
@@ -617,10 +627,11 @@ func TestClientShutdown(t *testing.T) {
 
 	defer server.Close()
 
-	client := Client{
-		BaseURL:  server.URL,
-		Password: "password",
-		Username: tunnelUser,
+	client := &Client{
+		BaseURL:   server.URL,
+		UserAgent: "test",
+		Password:  "password",
+		Username:  tunnelUser,
 	}
 
 	jobs, err := client.shutdown(context.Background(), tunID, "sigterm", true, SCProtocol)
@@ -668,10 +679,11 @@ func TestClientShutdownTunnel(t *testing.T) {
 
 	for _, tc := range tt {
 		defer tc.server.Close()
-		client := Client{
-			BaseURL:  tc.server.URL,
-			Password: "password",
-			Username: tunnelUser,
+		client := &Client{
+			BaseURL:   tc.server.URL,
+			UserAgent: "test",
+			Password:  "password",
+			Username:  tunnelUser,
 		}
 
 		jobs, err := client.ShutdownTunnel(context.Background(), tunID, "sigterm", true)
@@ -713,8 +725,9 @@ func TestClientShutdownVPN(t *testing.T) {
 
 	defer server.Close()
 
-	client := Client{
+	client := &Client{
 		BaseURL:             server.URL,
+		UserAgent:           "test",
 		Password:            "password",
 		TunnelOwnerUsername: otherUsername,
 		Username:            tunnelUser,
@@ -763,8 +776,9 @@ func TestClientCreateVPN(t *testing.T) {
 
 	defer server.Close()
 
-	client := Client{
+	client := &Client{
 		BaseURL:             server.URL,
+		UserAgent:           "test",
 		Username:            tunnelUser,
 		TunnelOwnerUsername: otherUsername,
 		Password:            "password",
@@ -915,9 +929,10 @@ func TestGetUpdatesEmpty(t *testing.T) {
 	})
 	defer server.Close()
 
-	client := Client{
-		Username: tunnelUser,
-		BaseURL:  server.URL,
+	client := &Client{
+		UserAgent: "test",
+		Username:  tunnelUser,
+		BaseURL:   server.URL,
 	}
 
 	scUpdates, err := client.GetSCUpdates(context.Background(), clientHost, clientVersion, "", tunnelRegion, "", true)
@@ -945,7 +960,11 @@ func TestGetUpdates(t *testing.T) {
 	})
 	defer server.Close()
 
-	client, _ := New(server.URL, Options{User: tunnelUser})
+	client := &Client{
+		BaseURL:   server.URL,
+		UserAgent: "test",
+		Username:  tunnelUser,
+	}
 
 	scUpdates, _ := client.GetSCUpdates(context.Background(), "linux-386", "4.6.3", encodedJSONConf, tunnelRegion, tunnelName, true)
 
@@ -967,7 +986,11 @@ func TestGetVersions(t *testing.T) {
 	})
 	defer server.Close()
 
-	client, _ := New(server.URL, Options{User: tunnelUser})
+	client := &Client{
+		BaseURL:   server.URL,
+		UserAgent: "test",
+		Username:  tunnelUser,
+	}
 
 	scVersions, err := client.GetVersions("linux-386", clientVersion, true)
 	assert.NoErrorf(err,
@@ -993,7 +1016,10 @@ func TestRetryableCall(t *testing.T) {
 	server := multiResponseServer(resps)
 	defer server.Close()
 
-	client, _ := New(server.URL, Options{})
+	client := &Client{
+		BaseURL:   server.URL,
+		UserAgent: "test",
+	}
 
 	for _, retryableStatusCode := range RetryableStatusCodes {
 		time.Sleep(100 * time.Millisecond)
@@ -1023,7 +1049,9 @@ func TestRetryableCall(t *testing.T) {
 
 func TestNonRetryableCall(t *testing.T) {
 	assert := assertLib.New(t)
-	client := Client{}
+	client := &Client{
+		UserAgent: "test",
+	}
 
 	nonRetryableStatusCodes := []int{
 		http.StatusForbidden,
@@ -1061,9 +1089,12 @@ func TestClientRequestHeaders(t *testing.T) {
 
 	defer server.Close()
 
-	client, _ := New(server.URL, Options{})
+	client := &Client{
+		BaseURL:   server.URL,
+		UserAgent: "test",
+	}
 
 	err := client.executeRequest(context.Background(), http.MethodGet, server.URL, nil, &r)
 	assert.NoErrorf(err, "Unexpected error received: %+v", err)
-	assert.Truef(strings.EqualFold(r["user-agent"], defaultUserAgent), "Unexpected user-agent header: %+v", r)
+	assert.Truef(strings.EqualFold(r["user-agent"], "test"), "Unexpected user-agent header: %+v", r)
 }
