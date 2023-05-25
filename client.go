@@ -52,12 +52,13 @@ type Client struct {
 	UserAgent string
 	// Headers that are set on each request.
 	Headers map[string]string
-	// Password is API Key used for requests authentication with the REST API.
-	Password string
-	// TunnelOwnerUsername is the name or ID of the user who is a subject of the query.
-	TunnelOwnerUsername string
-	// Username is the name or ID of the user who executes the request.
-	Username string
+
+	// User is the name or ID of the user who executes the request.
+	User string
+	// APIKey used for requests authentication with the REST API.
+	APIKey string
+	// TunnelOwner is the name or ID of the user who is a subject of the query.
+	TunnelOwner string
 
 	// DecodeJSON is used to decode a response body.
 	DecodeJSON func(reader io.ReadCloser, v interface{}) error
@@ -143,11 +144,12 @@ func (c *Client) executeRequest(
 	if c.UserAgent == "" {
 		return errors.New("user agent is not set")
 	}
+
 	req.Header.Set("User-Agent", c.UserAgent)
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
 
-	req.SetBasicAuth(c.Username, c.Password)
+	req.SetBasicAuth(c.User, c.APIKey)
 
 	resp, err := func() (*http.Response, error) {
 		// Client allows to specify a request executor. IF it's not provided,
@@ -243,11 +245,11 @@ func (c *Client) executeRequest(
 
 // getTunnelOwnerUsername allows to get tunnel(s) for an arbitrary user.
 func (c *Client) getTunnelOwnerUsername() string {
-	if len(c.TunnelOwnerUsername) > 0 {
-		return c.TunnelOwnerUsername
+	if len(c.TunnelOwner) > 0 {
+		return c.TunnelOwner
 	}
 
-	return c.Username
+	return c.User
 }
 
 // listSharedTunnels returns tunnel states per user in the org with shared tunnels.
@@ -446,7 +448,7 @@ func (c *Client) UpdateClientStatus(
 	duration time.Duration,
 	memory *Memory,
 ) (UpdateClientStatusResponse, error) {
-	url := fmt.Sprintf("%s/%s/tunnels/%s/connected", c.BaseURL, c.Username, id)
+	url := fmt.Sprintf("%s/%s/tunnels/%s/connected", c.BaseURL, c.User, id)
 	resp := UpdateClientStatusResponse{}
 
 	req := ClientStatusRequest{
@@ -470,7 +472,7 @@ func (c *Client) ReportCrash(tunnel, info, logs string) error {
 		Tunnel string `json:"Tunnel"`
 	}{Tunnel: tunnel, Info: info, Logs: logs}
 
-	url := fmt.Sprintf("%s/%s/errors", c.BaseURL, c.Username)
+	url := fmt.Sprintf("%s/%s/errors", c.BaseURL, c.User)
 
 	return c.executeRequest(context.Background(), http.MethodPost, url, doc, nil)
 }
