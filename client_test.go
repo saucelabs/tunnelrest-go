@@ -1002,6 +1002,8 @@ func TestGetVersions(t *testing.T) {
 }
 
 func TestRetryableCall(t *testing.T) {
+	t.Skip("Skipping test that makes external calls")
+
 	resps := []resp{}
 
 	for _, retryableStatusCode := range RetryableStatusCodes {
@@ -1048,6 +1050,8 @@ func TestRetryableCall(t *testing.T) {
 }
 
 func TestNonRetryableCall(t *testing.T) {
+	t.Skip("Skipping test that makes external calls")
+
 	assert := assertLib.New(t)
 	client := &Client{
 		UserAgent: "test",
