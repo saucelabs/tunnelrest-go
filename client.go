@@ -10,7 +10,6 @@ import (
 	"net/url"
 	"path"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/saucelabs/tunnelrest-go/util"
@@ -28,9 +27,6 @@ const (
 	// VPNProtocol is the protocol name used by IPSec Proxy.
 	VPNProtocol Protocol = "ipsec"
 )
-
-// defaultUserAgent is a default user-agent header for this client.
-var defaultUserAgent = fmt.Sprintf("TunnelRest/%s", Version)
 
 var httpClient = &http.Client{
 	// Timeout for requests made by this Client. The timeout includes conn
@@ -51,6 +47,9 @@ var httpClient = &http.Client{
 type Client struct {
 	// BaseURL is REST API URL used for Sauce Connect queries.
 	BaseURL string
+	// UserAgent specifies the user agent to be sent in the request.
+	// If not set no request can be made.
+	UserAgent string
 	// Headers that are set on each request.
 	Headers map[string]string
 	// Password is API Key used for requests authentication with the REST API.
@@ -68,18 +67,6 @@ type Client struct {
 	// ExecuteRequest is the method that execute HTTP request.
 	// http.DefaultClient.Do is used by default.
 	ExecuteRequest func(*http.Request) (*http.Response, error)
-}
-
-// Options are used to initialize the client.
-type Options struct {
-	// Headers maps header names to header values. These headers will be added to each request.
-	Headers map[string]string
-	// Password is API Key used for requests authentication with the REST API.
-	Password string
-	// TunnelOwner is the name or ID of the user who is a subject of the query.
-	TunnelOwner string
-	// User is the name or ID of the user who executes the request.
-	User string
 }
 
 func (c *Client) decode(reader io.ReadCloser, v interface{}) error {
@@ -153,6 +140,10 @@ func (c *Client) executeRequest(
 		req.Header.Set(header, val)
 	}
 
+	if c.UserAgent == "" {
+		return errors.New("user agent is not set")
+	}
+	req.Header.Set("User-Agent", c.UserAgent)
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
 
@@ -492,25 +483,4 @@ func (c *Client) TunnelState(ctx context.Context, id string) (TunnelState, error
 	err := c.executeRequest(ctx, http.MethodGet, url, nil, &info)
 
 	return info, err
-}
-
-// New returns REST API client.
-func New(
-	restURL string,
-	options Options,
-) (*Client, error) {
-	headers := make(map[string]string)
-	headers["user-agent"] = defaultUserAgent
-
-	for header, val := range options.Headers {
-		headers[strings.ToLower(header)] = val
-	}
-	// TODO: Add options validation.
-	return &Client{
-		BaseURL:             restURL,
-		Headers:             headers,
-		Password:            options.Password,
-		TunnelOwnerUsername: options.TunnelOwner,
-		Username:            options.User,
-	}, nil
 }
