@@ -51,8 +51,6 @@ var httpClient = &http.Client{
 type Client struct {
 	// BaseURL is REST API URL used for Sauce Connect queries.
 	BaseURL string
-	// GLobalBaseURL is REST API URL used for region-independent queries.
-	GlobalBaseURL string
 	// Headers that are set on each request.
 	Headers map[string]string
 	// Password is API Key used for requests authentication with the REST API.
@@ -74,8 +72,6 @@ type Client struct {
 
 // Options are used to initialize the client.
 type Options struct {
-	// GLobalBaseURL is REST API URL used for region-independent queries.
-	GlobalBaseURL string
 	// Headers maps header names to header values. These headers will be added to each request.
 	Headers map[string]string
 	// Password is API Key used for requests authentication with the REST API.
@@ -512,7 +508,6 @@ func New(
 	// TODO: Add options validation.
 	return &Client{
 		BaseURL:             restURL,
-		GlobalBaseURL:       options.GlobalBaseURL,
 		Headers:             headers,
 		Password:            options.Password,
 		TunnelOwnerUsername: options.TunnelOwner,
