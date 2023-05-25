@@ -18,29 +18,12 @@ import (
 const (
 	infoPath = "tunnels/info"
 
-	httpClientDefaultTimeout    = 60 * time.Second
-	httpClientTransportMaxConns = 100
-
 	// SCProtocol is name of the protocol used by Sauce Connect Proxy.
 	SCProtocol Protocol = "kgp"
 
 	// VPNProtocol is the protocol name used by IPSec Proxy.
 	VPNProtocol Protocol = "ipsec"
 )
-
-var httpClient = &http.Client{
-	// Timeout for requests made by this Client. The timeout includes conn
-	// time, any redirects, and reading the response body. The timer remains
-	// running after Get, Head, Post, or Do return and will interrupt reading
-	// of the Response.Body.
-	Timeout: httpClientDefaultTimeout,
-
-	Transport: &http.Transport{
-		MaxConnsPerHost:     httpClientTransportMaxConns,
-		MaxIdleConns:        httpClientTransportMaxConns,
-		MaxIdleConnsPerHost: httpClientTransportMaxConns,
-	},
-}
 
 // Client is the Sauce Connect Proxy REST API client. It allows you to create, query, and
 // terminate tunnels.
@@ -65,9 +48,8 @@ type Client struct {
 	// EncodeJSON is used to encode a request body.
 	EncodeJSON func(writer io.Writer, v interface{}) error
 
-	// ExecuteRequest is the method that execute HTTP request.
-	// http.DefaultClient.Do is used by default.
-	ExecuteRequest func(*http.Request) (*http.Response, error)
+	// RoundTrip is used to make HTTP requests, if not set, the default http.Client is used.
+	RoundTrip func(*http.Request) (*http.Response, error)
 }
 
 func (c *Client) decode(reader io.ReadCloser, v interface{}) error {
@@ -151,17 +133,13 @@ func (c *Client) executeRequest(
 
 	req.SetBasicAuth(c.User, c.APIKey)
 
-	resp, err := func() (*http.Response, error) {
-		// Client allows to specify a request executor. IF it's not provided,
-		// client will fallback to the built-in HTTP client. It provides
-		// flexibility, BUT can introduce problems, out-of-control from this
-		// client. Sane default values are set @ the fallback client.
-		if c.ExecuteRequest == nil {
-			return httpClient.Do(req)
-		}
+	var resp *http.Response
+	if c.RoundTrip != nil {
+		resp, err = c.RoundTrip(req) //nolint:bodyclose // Closed later
+	} else {
+		resp, err = http.DefaultClient.Do(req) //nolint:bodyclose // Closed later
+	}
 
-		return c.ExecuteRequest(req)
-	}()
 	if err != nil {
 		cE := &ClientError{
 			Err:       err,
