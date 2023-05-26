@@ -119,10 +119,9 @@ func createTunnel(url string) (*Client, TunnelStateWithMessages, error) {
 
 func createTunnelWithTime(url string, timeout time.Duration) (*Client, TunnelStateWithMessages, error) {
 	client := &Client{
-		BaseURL:   url,
-		UserAgent: "test",
-		User:      tunnelUser,
-		APIKey:    "password",
+		BaseURL: url,
+		User:    tunnelUser,
+		APIKey:  "password",
 	}
 
 	request := Request{
@@ -199,10 +198,9 @@ func TestTunnelState(t *testing.T) {
 	defer server.Close()
 
 	client := &Client{
-		BaseURL:   server.URL,
-		UserAgent: "test",
-		APIKey:    "password",
-		User:      tunnelUser,
+		BaseURL: server.URL,
+		APIKey:  "password",
+		User:    tunnelUser,
 	}
 
 	serverInfo, err := client.TunnelState(context.Background(), tunID)
@@ -242,10 +240,9 @@ func TestTunnelStateShutdownReason(t *testing.T) {
 	defer server.Close()
 
 	client := &Client{
-		BaseURL:   server.URL,
-		UserAgent: "test",
-		APIKey:    "password",
-		User:      tunnelUser,
+		BaseURL: server.URL,
+		APIKey:  "password",
+		User:    tunnelUser,
 	}
 
 	serverInfo, err := client.TunnelState(context.Background(), tunID)
@@ -315,10 +312,9 @@ func TestListAllTunnelStates(t *testing.T) {
 	defer server.Close()
 
 	client := &Client{
-		BaseURL:   server.URL,
-		UserAgent: "test",
-		APIKey:    "password",
-		User:      tunnelUser,
+		BaseURL: server.URL,
+		APIKey:  "password",
+		User:    tunnelUser,
 	}
 
 	limit := 1
@@ -628,10 +624,9 @@ func TestClientShutdown(t *testing.T) {
 	defer server.Close()
 
 	client := &Client{
-		BaseURL:   server.URL,
-		UserAgent: "test",
-		APIKey:    "password",
-		User:      tunnelUser,
+		BaseURL: server.URL,
+		APIKey:  "password",
+		User:    tunnelUser,
 	}
 
 	jobs, err := client.shutdown(context.Background(), tunID, "sigterm", true, SCProtocol)
@@ -680,10 +675,9 @@ func TestClientShutdownTunnel(t *testing.T) {
 	for _, tc := range tt {
 		defer tc.server.Close()
 		client := &Client{
-			BaseURL:   tc.server.URL,
-			UserAgent: "test",
-			APIKey:    "password",
-			User:      tunnelUser,
+			BaseURL: tc.server.URL,
+			APIKey:  "password",
+			User:    tunnelUser,
 		}
 
 		jobs, err := client.ShutdownTunnel(context.Background(), tunID, "sigterm", true)
@@ -961,9 +955,8 @@ func TestGetUpdates(t *testing.T) {
 	defer server.Close()
 
 	client := &Client{
-		BaseURL:   server.URL,
-		UserAgent: "test",
-		User:      tunnelUser,
+		BaseURL: server.URL,
+		User:    tunnelUser,
 	}
 
 	scUpdates, _ := client.GetSCUpdates(context.Background(), "linux-386", "4.6.3", encodedJSONConf, tunnelRegion, tunnelName, true)
@@ -987,9 +980,8 @@ func TestGetVersions(t *testing.T) {
 	defer server.Close()
 
 	client := &Client{
-		BaseURL:   server.URL,
-		UserAgent: "test",
-		User:      tunnelUser,
+		BaseURL: server.URL,
+		User:    tunnelUser,
 	}
 
 	scVersions, err := client.GetVersions("linux-386", clientVersion, true)
@@ -1019,8 +1011,7 @@ func TestRetryableCall(t *testing.T) {
 	defer server.Close()
 
 	client := &Client{
-		BaseURL:   server.URL,
-		UserAgent: "test",
+		BaseURL: server.URL,
 	}
 
 	for _, retryableStatusCode := range RetryableStatusCodes {
@@ -1094,11 +1085,10 @@ func TestClientRequestHeaders(t *testing.T) {
 	defer server.Close()
 
 	client := &Client{
-		BaseURL:   server.URL,
-		UserAgent: "test",
+		BaseURL: server.URL,
 	}
 
 	err := client.executeRequest(context.Background(), http.MethodGet, server.URL, nil, &r)
 	assert.NoErrorf(err, "Unexpected error received: %+v", err)
-	assert.Truef(strings.EqualFold(r["user-agent"], "test"), "Unexpected user-agent header: %+v", r)
+	assert.Truef(strings.EqualFold(r["user-agent"], "SauceLabs/tunnelrest-go"), "Unexpected user-agent header: %+v", r)
 }

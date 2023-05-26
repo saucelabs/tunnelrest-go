@@ -31,7 +31,7 @@ type Client struct {
 	// BaseURL is REST API URL used for Sauce Connect queries.
 	BaseURL string
 	// UserAgent specifies the user agent to be sent in the request.
-	// If not set no request can be made.
+	// If not set default value is used.
 	UserAgent string
 	// Headers that are set on each request.
 	Headers map[string]string
@@ -124,10 +124,11 @@ func (c *Client) executeRequest(
 	}
 
 	if c.UserAgent == "" {
-		return errors.New("user agent is not set")
+		req.Header.Set("User-Agent", "SauceLabs/tunnelrest-go")
+	} else {
+		req.Header.Set("User-Agent", c.UserAgent)
 	}
 
-	req.Header.Set("User-Agent", c.UserAgent)
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
 
