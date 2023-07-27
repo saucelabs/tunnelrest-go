@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"path"
 	"strconv"
 	"time"
 
@@ -18,8 +17,11 @@ import (
 const (
 	infoPath = "tunnels/info"
 
-	// SCProtocol is name of the protocol used by Sauce Connect Proxy.
-	SCProtocol Protocol = "kgp"
+	// KGPProtocol is the protocol used by Sauce Connect 4.x and below.
+	KGPProtocol Protocol = "kgp"
+
+	// H2CProtocol is the protocol used by Sauce Connect Proxy 5.0 and above.
+	H2CProtocol Protocol = "h2c"
 
 	// VPNProtocol is the protocol name used by IPSec Proxy.
 	VPNProtocol Protocol = "ipsec"
@@ -231,21 +233,31 @@ func (c *Client) getTunnelOwnerUsername() string {
 	return c.User
 }
 
-// listSharedTunnels returns tunnel states per user in the org with shared tunnels.
-func (c *Client) listSharedTunnels(protocol Protocol) (map[string][]TunnelState, error) {
+// listSharedTunnels returns tunnel states per user in the org with shared tunnels for given protocols.
+func (c *Client) listSharedTunnels(protocol ...Protocol) (map[string][]TunnelState, error) {
 	states := make(map[string][]TunnelState)
-	url := fmt.Sprintf("%s/%s/tunnels?full=1&all=1&backend=%s", c.BaseURL, c.getTunnelOwnerUsername(), protocol)
 
+	protocolQuery := ""
+	if len(protocol) > 0 {
+		protocolQuery = fmt.Sprintf("&protocol=%s", protocolsToString(protocol, ","))
+	}
+
+	url := fmt.Sprintf("%s/%s/tunnels?full=1&all=1%s", c.BaseURL, c.getTunnelOwnerUsername(), protocolQuery)
 	err := c.executeRequest(context.Background(), http.MethodGet, url, nil, &states)
 
 	return states, err
 }
 
-// listTunnels returns tunnels for a given user for a given protocol (kgp or ipsec).
-func (c *Client) listTunnels(protocol Protocol) ([]TunnelState, error) {
+// listTunnels returns tunnels for a given user for given protocols.
+func (c *Client) listTunnels(protocol ...Protocol) ([]TunnelState, error) {
 	var states []TunnelState
 
-	url := fmt.Sprintf("%s/%s/tunnels?full=1&backend=%s", c.BaseURL, c.getTunnelOwnerUsername(), protocol)
+	protocolQuery := ""
+	if len(protocol) > 0 {
+		protocolQuery = fmt.Sprintf("&protocol=%s", protocolsToString(protocol, ","))
+	}
+
+	url := fmt.Sprintf("%s/%s/tunnels?full=1%s", c.BaseURL, c.getTunnelOwnerUsername(), protocolQuery)
 	err := c.executeRequest(context.Background(), http.MethodGet, url, nil, &states)
 
 	return states, err
@@ -268,13 +280,12 @@ func (c *Client) listAllTunnels(limit int) (map[string][]TunnelState, error) {
 // Terminates Sauce Proxy. Termination `reason` could be "sigterm",
 // "serverTimeout", etc... `wait` determines whether the control logic should
 // wait for jobs to finish before terminating the tunnel.
-func (c *Client) shutdown(ctx context.Context, id string, reason string, wait bool, protocol Protocol) (int, error) {
-	u, err := generateURL(fmt.Sprintf("%s/%s",
-		c.BaseURL,
-		path.Join(c.getTunnelOwnerUsername(), pathByProto(protocol), id),
-	), nil, url.Values{
-		"reason": {reason},
-	})
+func (c *Client) shutdown(ctx context.Context, id string, reason string, wait bool) (int, error) {
+	u, err := generateURL(
+		fmt.Sprintf("%s/%s/tunnels/%s", c.BaseURL, c.getTunnelOwnerUsername(), id),
+		nil,
+		url.Values{"reason": {reason}},
+	)
 	if err != nil {
 		return -1, err
 	}
@@ -314,7 +325,6 @@ func (c *Client) shutdown(ctx context.Context, id string, reason string, wait bo
 func (c *Client) create(
 	ctx context.Context,
 	request *Request,
-	protocol Protocol,
 ) (TunnelStateWithMessages, error) {
 	req := request
 
@@ -329,15 +339,15 @@ func (c *Client) create(
 		SharedTunnel:     req.SharedTunnel,
 		SquidConfig:      nil,
 		SSHPort:          req.KGPPort,
+		Protocol:         &req.Protocol,
 		TunnelIdentifier: &req.TunnelIdentifier,
 		TunnelPool:       req.TunnelPool,
-		UseKGP:           true,
 		VMVersion:        &req.VMVersion,
 	}
 
 	tunnel := TunnelStateWithMessages{}
 
-	url := fmt.Sprintf("%s/%s/%s", c.BaseURL, c.getTunnelOwnerUsername(), pathByProto(protocol))
+	url := fmt.Sprintf("%s/%s/tunnels", c.BaseURL, c.getTunnelOwnerUsername())
 
 	if err := c.executeRequest(ctx, http.MethodPost, url, doc, &tunnel); err != nil {
 		return tunnel, err

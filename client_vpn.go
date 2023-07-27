@@ -10,10 +10,11 @@ func (c *Client) CreateVPNProxy(
 	ctx context.Context, request *Request, timeout time.Duration,
 ) (TunnelStateWithMessages, error) {
 	ctx, cancel := context.WithTimeout(ctx, timeout)
+	request.Protocol = string(VPNProtocol)
 	// Releases resources if the request completes before timeout elapses.
 	defer cancel()
 
-	return c.create(ctx, request, VPNProtocol)
+	return c.create(ctx, request)
 }
 
 // ListVPNProxies returns VPN proxy IDs for a given user.
@@ -50,5 +51,5 @@ func (c *Client) ListSharedVPNStates() (map[string][]TunnelState, error) {
 // Boolean "wait" determines whether the server
 // should wait for jobs to finish.
 func (c *Client) ShutdownVPNProxy(ctx context.Context, id string, reason string, wait bool) (int, error) {
-	return c.shutdown(ctx, id, reason, wait, VPNProtocol)
+	return c.shutdown(ctx, id, reason, wait)
 }
