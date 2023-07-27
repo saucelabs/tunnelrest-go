@@ -42,12 +42,12 @@ type jsonRequest struct {
 	Metadata         Metadata  `json:"metadata"`
 	NoProxyCaching   bool      `json:"no_proxy_caching"`
 	NoSSLBumpDomains *[]string `json:"no_ssl_bump_domains"`
+	Protocol         *string   `json:"protocol"`
 	SharedTunnel     bool      `json:"shared_tunnel"`
 	SquidConfig      *string   `json:"squid_config"`
 	SSHPort          int       `json:"ssh_port"`
 	TunnelIdentifier *string   `json:"tunnel_identifier"`
 	TunnelPool       bool      `json:"tunnel_pool"`
-	UseKGP           bool      `json:"use_kgp"`
 	VMVersion        *string   `json:"vm_version"`
 }
 
@@ -63,6 +63,7 @@ type Request struct {
 	KGPPort          int
 	NoProxyCaching   bool
 	NoSSLBumpDomains []string
+	Protocol         string
 	SharedTunnel     bool
 	TunnelPool       bool
 	VMVersion        string

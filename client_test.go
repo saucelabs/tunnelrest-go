@@ -259,18 +259,20 @@ func TestListTunnels(t *testing.T) {
 		otherUser string
 		path      string
 		client    Client
+		protos    []Protocol
 	}{
 		{
-			name: "Get user tunnels",
+			name: "Get kgp user tunnels",
 			path: fmt.Sprintf("/%s/tunnels", tunnelUser),
 			client: Client{
 				UserAgent: "test",
 				APIKey:    "password",
 				User:      tunnelUser,
 			},
+			protos: []Protocol{KGPProtocol},
 		},
 		{
-			name: "Get other user tunnels",
+			name: "Get kgp other user tunnels",
 			path: fmt.Sprintf("/%s/tunnels", otherUsername),
 			client: Client{
 				UserAgent:   "test",
@@ -278,6 +280,27 @@ func TestListTunnels(t *testing.T) {
 				User:        tunnelUser,
 				TunnelOwner: otherUsername,
 			},
+			protos: []Protocol{KGPProtocol},
+		},
+		{
+			name: "Get kgp and h2c user tunnels",
+			path: fmt.Sprintf("/%s/tunnels", tunnelUser),
+			client: Client{
+				UserAgent: "test",
+				APIKey:    "password",
+				User:      tunnelUser,
+			},
+			protos: []Protocol{KGPProtocol, H2CProtocol},
+		},
+		{
+			name: "Get all user tunnels",
+			path: fmt.Sprintf("/%s/tunnels", tunnelUser),
+			client: Client{
+				UserAgent: "test",
+				APIKey:    "password",
+				User:      tunnelUser,
+			},
+			protos: []Protocol{},
 		},
 	}
 
@@ -335,23 +358,31 @@ func TestListSharedTunnelStates(t *testing.T) {
 	tt := []struct {
 		name   string
 		client Client
-		proto  Protocol
+		protos []Protocol
 	}{
 		{
-			name: "Get shared tunnel states",
+			name: "Get shared KGP tunnel states",
 			client: Client{
 				APIKey: "password",
 				User:   tunnelUser,
 			},
-			proto: SCProtocol,
+			protos: []Protocol{KGPProtocol},
 		},
 		{
-			name: "Get shared VPN Proxy states",
+			name: "Get shared H2C and KGP tunnel states",
 			client: Client{
 				APIKey: "password",
 				User:   tunnelUser,
 			},
-			proto: VPNProtocol,
+			protos: []Protocol{H2CProtocol, KGPProtocol},
+		},
+		{
+			name: "Get all shared tunnel states",
+			client: Client{
+				APIKey: "password",
+				User:   tunnelUser,
+			},
+			protos: []Protocol{},
 		},
 	}
 
@@ -368,11 +399,7 @@ func TestListSharedTunnelStates(t *testing.T) {
 
 		tc.client.BaseURL = server.URL
 		tc.client.UserAgent = "test"
-		method := tc.client.ListSharedVPNStates
-		if tc.proto == SCProtocol {
-			method = tc.client.ListSharedTunnelStates
-		}
-		tunnels, err := method()
+		tunnels, err := tc.client.ListSharedTunnelStates(tc.protos...)
 		assert.NoErrorf(err,
 			"%s errored %+v\n", tc.name, err)
 
@@ -400,23 +427,31 @@ func TestListSharedTunnels(t *testing.T) {
 	tt := []struct {
 		name   string
 		client Client
-		proto  Protocol
+		protos []Protocol
 	}{
 		{
-			name: "Get shared tunnel states",
+			name: "Get kgp shared tunnels",
 			client: Client{
 				APIKey: "password",
 				User:   tunnelUser,
 			},
-			proto: SCProtocol,
+			protos: []Protocol{KGPProtocol},
 		},
 		{
-			name: "Get shared VPN Proxy states",
+			name: "Get kgp and h2c shared tunnels",
 			client: Client{
 				APIKey: "password",
 				User:   tunnelUser,
 			},
-			proto: VPNProtocol,
+			protos: []Protocol{KGPProtocol, H2CProtocol},
+		},
+		{
+			name: "Get all shared tunnels",
+			client: Client{
+				APIKey: "password",
+				User:   tunnelUser,
+			},
+			protos: []Protocol{},
 		},
 	}
 
@@ -433,11 +468,8 @@ func TestListSharedTunnels(t *testing.T) {
 
 		tc.client.BaseURL = server.URL
 		tc.client.UserAgent = "test"
-		method := tc.client.ListSharedTunnels
-		if tc.proto == SCProtocol {
-			method = tc.client.ListSharedTunnels
-		}
-		tunnels, err := method()
+
+		tunnels, err := tc.client.ListSharedTunnels()
 
 		assert.NoErrorf(err,
 			"%s errored %+v\n", tc.name, err)
@@ -490,7 +522,50 @@ func TestListVPNProxiesForUser(t *testing.T) {
 	}
 }
 
-func TestListSharedVPNProxiesForUser(t *testing.T) {
+func TestListSharedVPNsForUser(t *testing.T) {
+	assert := assertLib.New(t)
+	sharedTunnelsJSON := fmt.Sprintf(`{"%s": [{
+		"shared_tunnel": true,
+		"host": "temaki12345",
+		"id": "709b9c76afee3bfef42f1a9baaa5002abf6b00a9",
+		"status": "running",
+		"tunnel_identifier": "sauce",
+		"user_shutdown": false
+	}]}`, otherUsername)
+	path := fmt.Sprintf("/%s/tunnels", otherUsername)
+	server := multiResponseServer([]resp{
+		{
+			path:    path,
+			handler: stringResponse(sharedTunnelsJSON, http.StatusOK),
+			method:  http.MethodGet,
+		},
+	})
+	defer server.Close()
+
+	client := &Client{
+		BaseURL:     server.URL,
+		UserAgent:   "test",
+		APIKey:      "password",
+		TunnelOwner: otherUsername,
+		User:        tunnelUser,
+	}
+
+	tunnels, err := client.ListSharedVPNs()
+	assert.Equal(nil, err,
+		fmt.Sprintf("ListSharedVPNs errored %+v\n", err))
+
+	idsUser, ok := tunnels[otherUsername]
+	assert.True(ok, fmt.Sprintf("ListSharedVPNStates unexpected response %+v\n", idsUser))
+
+	assert.Equal(1, len(idsUser),
+		fmt.Sprintf("ListSharedVPNStates unexpected response len: %+v\n", idsUser))
+
+	if !reflect.DeepEqual(idsUser, []string{tunID}) {
+		t.Errorf("client.ListSharedVPNs returned %+v\n", idsUser)
+	}
+}
+
+func TestListSharedVPNStatesForUser(t *testing.T) {
 	assert := assertLib.New(t)
 	sharedTunnelsJSON := fmt.Sprintf(`{"%s": [{
 		"shared_tunnel": true,
@@ -629,7 +704,7 @@ func TestClientShutdown(t *testing.T) {
 		User:    tunnelUser,
 	}
 
-	jobs, err := client.shutdown(context.Background(), tunID, "sigterm", true, SCProtocol)
+	jobs, err := client.shutdown(context.Background(), tunID, "sigterm", true)
 
 	assert.Equal(nil, err,
 		fmt.Sprintf("client.shutdown errored %+v\n", err))
@@ -708,7 +783,7 @@ func TestClientShutdownTunnel(t *testing.T) {
 func TestClientShutdownVPN(t *testing.T) {
 	assert := assertLib.New(t)
 	jobsRunning := 1
-	path := fmt.Sprintf("/%s/vpns/%s", otherUsername, tunID)
+	path := fmt.Sprintf("/%s/tunnels/%s", otherUsername, tunID)
 	server := multiResponseServer([]resp{
 		{
 			path:    path,
@@ -757,12 +832,12 @@ func TestClientCreateTunnel(t *testing.T) {
 func TestClientCreateVPN(t *testing.T) {
 	server := multiResponseServer([]resp{
 		{
-			path:    fmt.Sprintf("/%s/vpns", otherUsername),
+			path:    fmt.Sprintf("/%s/tunnels", otherUsername),
 			handler: stringResponse(statusRunningJSON, http.StatusOK),
 			method:  http.MethodPost,
 		},
 		{
-			path:    fmt.Sprintf("/%s/vpns/%s", otherUsername, tunID),
+			path:    fmt.Sprintf("/%s/tunnels/%s", otherUsername, tunID),
 			handler: stringResponse(statusRunningJSON, http.StatusOK),
 			method:  http.MethodGet,
 		},
