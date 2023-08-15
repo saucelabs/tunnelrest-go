@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -12,8 +13,12 @@ import (
 func decodeJSON(reader io.ReadCloser, v interface{}) error {
 	defer reader.Close()
 
-	if err := json.NewDecoder(reader).Decode(v); err != nil {
-		return fmt.Errorf("couldn't decode JSON document: %w", err)
+	raw := &bytes.Buffer{}
+
+	r := io.TeeReader(reader, raw)
+
+	if err := json.NewDecoder(r).Decode(v); err != nil {
+		return fmt.Errorf("couldn't decode JSON document: %w - %s", err, raw)
 	}
 
 	return nil
