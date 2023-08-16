@@ -124,3 +124,35 @@ func Test_urlGenerator(t *testing.T) {
 		})
 	}
 }
+
+func TestProtocolQuery(t *testing.T) {
+	tests := []struct {
+		name      string
+		protocols []Protocol
+		want      string
+	}{
+		{
+			"no protocols",
+			nil,
+			"",
+		},
+		{
+			"one protocol",
+			[]Protocol{H2CProtocol},
+			"&protocol=h2c",
+		},
+		{
+			"two protocols",
+			[]Protocol{H2CProtocol, KGPProtocol},
+			"&protocol=h2c,kgp",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := protocolQuery(tt.protocols); got != tt.want {
+				t.Errorf("protocolQuery() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
