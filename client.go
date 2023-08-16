@@ -237,12 +237,7 @@ func (c *Client) getTunnelOwnerUsername() string {
 func (c *Client) listSharedTunnels(protocol ...Protocol) (map[string][]TunnelState, error) {
 	states := make(map[string][]TunnelState)
 
-	protocolQuery := ""
-	if len(protocol) > 0 {
-		protocolQuery = fmt.Sprintf("&protocol=%s", protocolsToString(protocol, ","))
-	}
-
-	url := fmt.Sprintf("%s/%s/tunnels?full=1&all=1%s", c.BaseURL, c.getTunnelOwnerUsername(), protocolQuery)
+	url := fmt.Sprintf("%s/%s/tunnels?full=1&all=1%s", c.BaseURL, c.getTunnelOwnerUsername(), protocolQuery(protocol))
 	err := c.executeRequest(context.Background(), http.MethodGet, url, nil, &states)
 
 	return states, err
@@ -252,12 +247,7 @@ func (c *Client) listSharedTunnels(protocol ...Protocol) (map[string][]TunnelSta
 func (c *Client) listTunnels(protocol ...Protocol) ([]TunnelState, error) {
 	var states []TunnelState
 
-	protocolQuery := ""
-	if len(protocol) > 0 {
-		protocolQuery = fmt.Sprintf("&protocol=%s", protocolsToString(protocol, ","))
-	}
-
-	url := fmt.Sprintf("%s/%s/tunnels?full=1%s", c.BaseURL, c.getTunnelOwnerUsername(), protocolQuery)
+	url := fmt.Sprintf("%s/%s/tunnels?full=1%s", c.BaseURL, c.getTunnelOwnerUsername(), protocolQuery(protocol))
 	err := c.executeRequest(context.Background(), http.MethodGet, url, nil, &states)
 
 	return states, err

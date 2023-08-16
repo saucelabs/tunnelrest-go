@@ -6,6 +6,8 @@ import (
 	"io"
 	"net/url"
 	"path"
+	"strings"
+	"unsafe"
 )
 
 // Decode `reader` into the object `v`, and close `reader` after.
@@ -80,15 +82,10 @@ func sharedTunnelStatesToIDs(states map[string][]TunnelState) map[string][]strin
 	return tunnelIDs
 }
 
-// ProtocolstoString converts an array of Protocols to a delimited string.
-func protocolsToString(protocols []Protocol, delimiter string) string {
-	cs := ""
-	if len(protocols) > 0 {
-		cs = protocols[0].String()
-		for _, p := range protocols[1:] {
-			cs += fmt.Sprintf("%s%s", delimiter, p.String())
-		}
+func protocolQuery(protocols []Protocol) string {
+	if len(protocols) == 0 {
+		return ""
 	}
 
-	return cs
+	return fmt.Sprintf("&protocol=%s", strings.Join(*(*[]string)(unsafe.Pointer(&protocols)), ","))
 }
