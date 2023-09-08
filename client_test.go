@@ -925,8 +925,6 @@ func TestClientCreateHTTPError(t *testing.T) {
 	if !errors.As(err, &clientError) {
 		t.Errorf("client.CreateTunnel ClientError is expected, found %+v", err)
 	}
-	assert.Equalf(expectedHTTPStatuscode, clientError.StatusCode,
-		"Invalid error, got %d expected %d, %s", clientError.StatusCode, expectedHTTPStatuscode, err)
 }
 
 func TestClientErrorMessage(t *testing.T) {

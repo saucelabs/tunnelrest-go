@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/hashicorp/go-retryablehttp"
 	"github.com/saucelabs/tunnelrest-go/util"
 )
 
@@ -50,8 +51,12 @@ type Client struct {
 	// EncodeJSON is used to encode a request body.
 	EncodeJSON func(writer io.Writer, v interface{}) error
 
-	// RoundTrip is used to make HTTP requests, if not set, the default http.Client is used.
+	// RoundTrip is used to make HTTP requests, if not set, a retryablehttp.Client is used.
 	RoundTrip func(*http.Request) (*http.Response, error)
+
+	// RetryMax sets the number of retries that will be made on a retryable failing
+	// request. This is only used when RoundTrip is not set.
+	RetryMax int
 }
 
 func (c *Client) decode(reader io.ReadCloser, v interface{}) error {
@@ -140,7 +145,11 @@ func (c *Client) executeRequest(
 	if c.RoundTrip != nil {
 		resp, err = c.RoundTrip(req) //nolint:bodyclose // Closed later
 	} else {
-		resp, err = http.DefaultClient.Do(req) //nolint:bodyclose // Closed later
+		retryClient := retryablehttp.NewClient()
+		retryClient.RetryMax = c.RetryMax
+		retryClient.Logger = nil
+		stdClient := retryClient.StandardClient()
+		resp, err = stdClient.Do(req) //nolint:bodyclose // Closed later
 	}
 
 	if err != nil {
