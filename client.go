@@ -319,20 +319,22 @@ func (c *Client) create(
 	req := request
 
 	doc := jsonRequest{
-		DirectDomains:    &req.DirectDomains,
-		DomainNames:      req.DomainNames,
-		ExtraInfo:        &req.ExtraInfo,
-		FastFailRegexps:  &req.FastFailRegexps,
-		Metadata:         req.Metadata,
-		NoProxyCaching:   req.NoProxyCaching,
-		NoSSLBumpDomains: &req.NoSSLBumpDomains,
-		SharedTunnel:     req.SharedTunnel,
-		SquidConfig:      nil,
-		SSHPort:          req.KGPPort,
-		Protocol:         &req.Protocol,
-		TunnelIdentifier: &req.TunnelIdentifier,
-		TunnelPool:       req.TunnelPool,
-		VMVersion:        &req.VMVersion,
+		DirectDomains:         &req.DirectDomains,
+		DomainNames:           req.DomainNames,
+		ExtraInfo:             &req.ExtraInfo,
+		FastFailRegexps:       &req.FastFailRegexps,
+		Metadata:              req.Metadata,
+		NoProxyCaching:        req.NoProxyCaching,
+		NoSSLBumpDomains:      &req.NoSSLBumpDomains,
+		SharedTunnel:          req.SharedTunnel,
+		SquidConfig:           nil,
+		SSHPort:               req.KGPPort,
+		Protocol:              &req.Protocol,
+		TLSPassthroughDomains: &req.TLSPassthroughDomains,
+		TLSResignDomains:      &req.TLSResignDomains,
+		TunnelIdentifier:      &req.TunnelIdentifier,
+		TunnelPool:            req.TunnelPool,
+		VMVersion:             &req.VMVersion,
 	}
 
 	tunnel := TunnelStateWithMessages{}
