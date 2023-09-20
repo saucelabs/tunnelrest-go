@@ -33,51 +33,21 @@ type Metadata struct {
 	Release       string            `json:"release"`
 }
 
-//nolint:maligned
-type jsonRequest struct {
-	DirectDomains         *[]string `json:"direct_domains"`
-	DomainNames           []string  `json:"domain_names"`
-	ExtraInfo             *string   `json:"extra_info"`
-	FastFailRegexps       *[]string `json:"fast_fail_regexps"`
-	Metadata              Metadata  `json:"metadata"`
-	NoProxyCaching        bool      `json:"no_proxy_caching"`
-	NoSSLBumpDomains      *[]string `json:"no_ssl_bump_domains"`
-	Protocol              *string   `json:"protocol"`
-	SharedTunnel          bool      `json:"shared_tunnel"`
-	SquidConfig           *string   `json:"squid_config"`
-	SSHPort               int       `json:"ssh_port"`
-	TLSPassthroughDomains *[]string `json:"tls_passthrough_domains"`
-	TLSResignDomains      *[]string `json:"tls_resign_domains"`
-	TunnelIdentifier      *string   `json:"tunnel_identifier"`
-	TunnelPool            bool      `json:"tunnel_pool"`
-	VMVersion             *string   `json:"vm_version"`
-}
-
 // Request for a new tunnel.
-//
-//nolint:maligned
 type Request struct {
-	DomainNames      []string
-	TunnelIdentifier string
-
-	DirectDomains         []string
-	FastFailRegexps       []string
-	KGPPort               int
-	NoProxyCaching        bool
-	NoSSLBumpDomains      []string
-	Protocol              string
-	SharedTunnel          bool
-	TLSPassthroughDomains []string
-	TLSResignDomains      []string
-	TunnelPool            bool
-	VMVersion             string
-
-	// Metadata contains the request metadata.
-	Metadata Metadata
-
-	// Extra info. This is a string (which contains a JSON dict) to enable
-	// optional features and flags.
-	ExtraInfo string
+	DirectDomains    []string `json:"direct_domains,omitempty"`
+	DomainNames      []string `json:"domain_names"`
+	ExtraInfo        string   `json:"extra_info,omitempty"`
+	FastFailRegexps  []string `json:"fast_fail_regexps,omitempty"`
+	Metadata         Metadata `json:"metadata"`
+	NoProxyCaching   bool     `json:"no_proxy_caching"`
+	NoSSLBumpDomains []string `json:"no_ssl_bump_domains,omitempty"`
+	Protocol         string   `json:"protocol,omitempty"`
+	SharedTunnel     bool     `json:"shared_tunnel"`
+	KGPPort          int      `json:"ssh_port"`
+	TunnelIdentifier *string  `json:"tunnel_identifier"`
+	TunnelPool       bool     `json:"tunnel_pool"`
+	VMVersion        string   `json:"vm_version,omitempty"`
 }
 
 type ClientStatusRequest struct {
