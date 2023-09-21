@@ -312,10 +312,7 @@ func (c *Client) shutdown(ctx context.Context, id string, reason string, wait bo
 }
 
 // create requests Sauce Labs REST API to provision a new tunnel.
-func (c *Client) create(
-	ctx context.Context,
-	req *CreateTunnelRequestV4,
-) (TunnelStateWithMessages, error) {
+func (c *Client) create(ctx context.Context, req any) (TunnelStateWithMessages, error) {
 	var tunnel TunnelStateWithMessages
 
 	url := fmt.Sprintf("%s/%s/tunnels", c.BaseURL, c.getTunnelOwnerUsername())

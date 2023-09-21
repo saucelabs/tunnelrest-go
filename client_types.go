@@ -50,6 +50,20 @@ type CreateTunnelRequestV4 struct {
 	VMVersion        string   `json:"vm_version,omitempty"`
 }
 
+// CreateTunnelRequestV5 create Sauce Connect tunnel 5.X request.
+type CreateTunnelRequestV5 struct {
+	TunnelIdentifier      string   `json:"tunnel_identifier"`
+	Protocol              string   `json:"protocol"`
+	SharedTunnel          bool     `json:"shared_tunnel"`
+	TunnelPool            bool     `json:"tunnel_pool"`
+	TunnelDomains         []string `json:"tunnel_domains,omitempty"`
+	DirectDomains         []string `json:"direct_domains,omitempty"`
+	DenyDomains           []string `json:"deny_domains,omitempty"`
+	TLSResignDomains      []string `json:"tls_resign_domains,omitempty"`
+	TLSPassthroughDomains []string `json:"tls_passthrough_domains,omitempty"`
+	Metadata              Metadata `json:"metadata,omitempty"`
+}
+
 type ClientStatusRequest struct {
 	KGPConnected         bool    `json:"kgp_is_connected"`
 	StatusChangeDuration int64   `json:"kgp_seconds_since_last_status_change"`
