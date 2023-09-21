@@ -5,16 +5,16 @@ run:
 linters:
   enable-all: true
   disable:
-    - wrapcheck
-    - testpackage
-    - gochecknoglobals
+    - cyclop
     - exhaustivestruct
     - exhaustruct
-    - paralleltest
+    - gochecknoglobals
     - godox
-    - cyclop
+    - paralleltest
     - tagliatelle
+    - testpackage
     - varnamelen
+    - wrapcheck
   fast: false
 
 # Settings for specific linters
