@@ -15,6 +15,7 @@ linters:
     - testpackage
     - varnamelen
     - wrapcheck
+    - wsl
   fast: false
 
 # Settings for specific linters
