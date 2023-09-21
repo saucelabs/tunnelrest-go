@@ -128,7 +128,7 @@ func createTunnelWithTime(url string, timeout time.Duration) (*Client, TunnelSta
 		DomainNames: []string{"sauce-connect.proxy"},
 	}
 
-	tunnel, err := client.CreateTunnel(context.Background(), &request, timeout)
+	tunnel, err := client.CreateTunnelV4(context.Background(), &request, timeout)
 	return client, tunnel, err
 }
 
@@ -919,11 +919,11 @@ func TestClientCreateHTTPError(t *testing.T) {
 	defer server.Close()
 
 	_, _, err := createTunnel(server.URL)
-	assert.Error(err, "client.CreateTunnel error is expected")
+	assert.Error(err, "client.CreateTunnelV4 error is expected")
 
 	var clientError *ClientError
 	if !errors.As(err, &clientError) {
-		t.Errorf("client.CreateTunnel ClientError is expected, found %+v", err)
+		t.Errorf("client.CreateTunnelV4 ClientError is expected, found %+v", err)
 	}
 	assert.Equalf(expectedHTTPStatuscode, clientError.StatusCode,
 		"Invalid error, got %d expected %d, %s", clientError.StatusCode, expectedHTTPStatuscode, err)
@@ -945,10 +945,10 @@ func TestClientErrorMessage(t *testing.T) {
 
 	if _, _, err := createTunnel(server.URL); err != nil {
 		assert.NotEqual(nil, err,
-			"Expected client.CreateTunnel error is missing")
+			"Expected client.CreateTunnelV4 error is missing")
 		var clientError *ClientError
 		if !errors.As(err, &clientError) {
-			t.Errorf("client.CreateTunnel ClientError is expected, found %+v", err)
+			t.Errorf("client.CreateTunnelV4 ClientError is expected, found %+v", err)
 		}
 
 		assert.Equalf(expectedHTTPStatuscode, clientError.StatusCode,
