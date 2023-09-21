@@ -35,33 +35,37 @@ type Metadata struct {
 
 // CreateTunnelRequestV4 create Sauce Connect tunnel 4.X request.
 type CreateTunnelRequestV4 struct {
-	DirectDomains    []string `json:"direct_domains,omitempty"`
+	TunnelIdentifier *string `json:"tunnel_identifier"`
+	Protocol         string  `json:"protocol,omitempty"`
+	SharedTunnel     bool    `json:"shared_tunnel"`
+	TunnelPool       bool    `json:"tunnel_pool"`
+	NoProxyCaching   bool    `json:"no_proxy_caching"`
+	KGPPort          int     `json:"ssh_port"`
+
 	DomainNames      []string `json:"domain_names"`
-	ExtraInfo        string   `json:"extra_info,omitempty"`
+	DirectDomains    []string `json:"direct_domains,omitempty"`
 	FastFailRegexps  []string `json:"fast_fail_regexps,omitempty"`
-	Metadata         Metadata `json:"metadata"`
-	NoProxyCaching   bool     `json:"no_proxy_caching"`
 	NoSSLBumpDomains []string `json:"no_ssl_bump_domains,omitempty"`
-	Protocol         string   `json:"protocol,omitempty"`
-	SharedTunnel     bool     `json:"shared_tunnel"`
-	KGPPort          int      `json:"ssh_port"`
-	TunnelIdentifier *string  `json:"tunnel_identifier"`
-	TunnelPool       bool     `json:"tunnel_pool"`
-	VMVersion        string   `json:"vm_version,omitempty"`
+
+	ExtraInfo string   `json:"extra_info,omitempty"`
+	Metadata  Metadata `json:"metadata"`
+	VMVersion string   `json:"vm_version,omitempty"`
 }
 
 // CreateTunnelRequestV5 create Sauce Connect tunnel 5.X request.
 type CreateTunnelRequestV5 struct {
-	TunnelIdentifier      string   `json:"tunnel_identifier"`
-	Protocol              string   `json:"protocol"`
-	SharedTunnel          bool     `json:"shared_tunnel"`
-	TunnelPool            bool     `json:"tunnel_pool"`
+	TunnelIdentifier string `json:"tunnel_identifier"`
+	Protocol         string `json:"protocol"`
+	SharedTunnel     bool   `json:"shared_tunnel"`
+	TunnelPool       bool   `json:"tunnel_pool"`
+
 	TunnelDomains         []string `json:"tunnel_domains,omitempty"`
 	DirectDomains         []string `json:"direct_domains,omitempty"`
 	DenyDomains           []string `json:"deny_domains,omitempty"`
 	TLSResignDomains      []string `json:"tls_resign_domains,omitempty"`
 	TLSPassthroughDomains []string `json:"tls_passthrough_domains,omitempty"`
-	Metadata              Metadata `json:"metadata,omitempty"`
+
+	Metadata Metadata `json:"metadata,omitempty"`
 }
 
 type ClientStatusRequest struct {
