@@ -7,7 +7,7 @@ import (
 
 // CreateVPNProxy requests Sauce Labs REST API to start a new proxy over VPN.
 func (c *Client) CreateVPNProxy(
-	ctx context.Context, request *Request, timeout time.Duration,
+	ctx context.Context, request *CreateTunnelRequestV4, timeout time.Duration,
 ) (TunnelStateWithMessages, error) {
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	request.Protocol = string(VPNProtocol)

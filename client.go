@@ -314,7 +314,7 @@ func (c *Client) shutdown(ctx context.Context, id string, reason string, wait bo
 // create requests Sauce Labs REST API to provision a new tunnel.
 func (c *Client) create(
 	ctx context.Context,
-	req *Request,
+	req *CreateTunnelRequestV4,
 ) (TunnelStateWithMessages, error) {
 	var tunnel TunnelStateWithMessages
 

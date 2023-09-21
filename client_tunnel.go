@@ -7,7 +7,7 @@ import (
 
 // CreateTunnel requests Sauce Labs REST API to create a new tunnel.
 func (c *Client) CreateTunnel(
-	ctx context.Context, request *Request, timeout time.Duration,
+	ctx context.Context, request *CreateTunnelRequestV4, timeout time.Duration,
 ) (TunnelStateWithMessages, error) {
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	// Releases resources if the request completes before timeout elapses.

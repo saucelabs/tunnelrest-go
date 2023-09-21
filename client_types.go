@@ -33,8 +33,8 @@ type Metadata struct {
 	Release       string            `json:"release"`
 }
 
-// Request for a new tunnel.
-type Request struct {
+// CreateTunnelRequestV4 create Sauce Connect tunnel 4.X request.
+type CreateTunnelRequestV4 struct {
 	DirectDomains    []string `json:"direct_domains,omitempty"`
 	DomainNames      []string `json:"domain_names"`
 	ExtraInfo        string   `json:"extra_info,omitempty"`

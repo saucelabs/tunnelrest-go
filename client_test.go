@@ -124,7 +124,7 @@ func createTunnelWithTime(url string, timeout time.Duration) (*Client, TunnelSta
 		APIKey:  "password",
 	}
 
-	request := Request{
+	request := CreateTunnelRequestV4{
 		DomainNames: []string{"sauce-connect.proxy"},
 	}
 
@@ -853,7 +853,7 @@ func TestClientCreateVPN(t *testing.T) {
 		APIKey:      "password",
 	}
 
-	request := Request{
+	request := CreateTunnelRequestV4{
 		DomainNames: []string{"sauce-connect.proxy"},
 	}
 
