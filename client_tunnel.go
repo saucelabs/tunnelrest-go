@@ -5,15 +5,26 @@ import (
 	"time"
 )
 
-// CreateTunnel requests Sauce Labs REST API to create a new tunnel.
-func (c *Client) CreateTunnel(
-	ctx context.Context, request *Request, timeout time.Duration,
+// CreateTunnelV4 requests Sauce Labs REST API to create a new tunnel.
+func (c *Client) CreateTunnelV4(
+	ctx context.Context, req *CreateTunnelRequestV4, timeout time.Duration,
 ) (TunnelStateWithMessages, error) {
+	req.Protocol = string(KGPProtocol)
 	ctx, cancel := context.WithTimeout(ctx, timeout)
-	// Releases resources if the request completes before timeout elapses.
 	defer cancel()
 
-	return c.create(ctx, request)
+	return c.create(ctx, req)
+}
+
+// CreateTunnelV5 requests Sauce Labs REST API to create a new Sauce Connect 5 tunnel.
+func (c *Client) CreateTunnelV5(
+	ctx context.Context, req *CreateTunnelRequestV5, timeout time.Duration,
+) (TunnelStateWithMessages, error) {
+	req.Protocol = string(H2CProtocol)
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	return c.create(ctx, req)
 }
 
 // ListAllTunnelStates returns all the tunnels (including not currently running)

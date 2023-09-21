@@ -312,40 +312,13 @@ func (c *Client) shutdown(ctx context.Context, id string, reason string, wait bo
 }
 
 // create requests Sauce Labs REST API to provision a new tunnel.
-func (c *Client) create(
-	ctx context.Context,
-	request *Request,
-) (TunnelStateWithMessages, error) {
-	req := request
-
-	doc := jsonRequest{
-		DirectDomains:         &req.DirectDomains,
-		DomainNames:           req.DomainNames,
-		ExtraInfo:             &req.ExtraInfo,
-		FastFailRegexps:       &req.FastFailRegexps,
-		Metadata:              req.Metadata,
-		NoProxyCaching:        req.NoProxyCaching,
-		NoSSLBumpDomains:      &req.NoSSLBumpDomains,
-		SharedTunnel:          req.SharedTunnel,
-		SquidConfig:           nil,
-		SSHPort:               req.KGPPort,
-		Protocol:              &req.Protocol,
-		TLSPassthroughDomains: &req.TLSPassthroughDomains,
-		TLSResignDomains:      &req.TLSResignDomains,
-		TunnelIdentifier:      &req.TunnelIdentifier,
-		TunnelPool:            req.TunnelPool,
-		VMVersion:             &req.VMVersion,
-	}
-
-	tunnel := TunnelStateWithMessages{}
+func (c *Client) create(ctx context.Context, req any) (TunnelStateWithMessages, error) {
+	var tunnel TunnelStateWithMessages
 
 	url := fmt.Sprintf("%s/%s/tunnels", c.BaseURL, c.getTunnelOwnerUsername())
+	err := c.executeRequest(ctx, http.MethodPost, url, req, &tunnel)
 
-	if err := c.executeRequest(ctx, http.MethodPost, url, doc, &tunnel); err != nil {
-		return tunnel, err
-	}
-
-	return tunnel, nil
+	return tunnel, err
 }
 
 // GetSCUpdates retrieves user messages, and the client version/platform
