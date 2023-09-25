@@ -96,7 +96,6 @@ func (c *Client) executeRequest(
 			// internal server error.
 			return &ClientError{
 				Err:        err,
-				Retryable:  false,
 				StatusCode: http.StatusInternalServerError,
 				URL:        util.SanitizedRawURL(url),
 			}
@@ -115,7 +114,6 @@ func (c *Client) executeRequest(
 		// Any error here is treated as an internal server error.
 		return &ClientError{
 			Err:        err,
-			Retryable:  false,
 			StatusCode: http.StatusInternalServerError,
 			URL:        util.SanitizedRawURL(url),
 		}
@@ -145,9 +143,8 @@ func (c *Client) executeRequest(
 
 	if err != nil {
 		cE := &ClientError{
-			Err:       err,
-			Retryable: false,
-			URL:       util.SanitizedURL(req.URL),
+			Err: err,
+			URL: util.SanitizedURL(req.URL),
 		}
 
 		// Sets status, if any.
@@ -159,8 +156,6 @@ func (c *Client) executeRequest(
 		if errors.Is(err, context.DeadlineExceeded) {
 			cE.StatusCode = http.StatusRequestTimeout
 		}
-
-		isErrorRetryable(cE)
 
 		return cE
 	}
@@ -182,7 +177,6 @@ func (c *Client) executeRequest(
 			// e.g.: "Failed to read/parse resp.Body/JSON".
 			return &ClientError{
 				Err:        err,
-				Retryable:  false,
 				StatusCode: http.StatusInternalServerError,
 				URL:        util.SanitizedURL(req.URL),
 			}
@@ -192,7 +186,6 @@ func (c *Client) executeRequest(
 		// that may be obscure/unknown, the request did not succeeded.
 		cE := &ClientError{
 			Err:        ErrRequestFailed,
-			Retryable:  false,
 			StatusCode: resp.StatusCode,
 			URL:        util.SanitizedURL(req.URL),
 		}
@@ -201,8 +194,6 @@ func (c *Client) executeRequest(
 		if buf.String() != "" {
 			cE.ServerResponse = buf.String()
 		}
-
-		isErrorRetryable(cE)
 
 		return cE
 	}
@@ -214,7 +205,6 @@ func (c *Client) executeRequest(
 			// response still might be not a valid JSON.
 			return &ClientError{
 				Err:        err,
-				Retryable:  false,
 				StatusCode: http.StatusInternalServerError,
 				URL:        util.SanitizedURL(req.URL),
 			}

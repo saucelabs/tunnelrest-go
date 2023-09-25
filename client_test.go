@@ -132,12 +132,10 @@ func createTunnelWithTime(url string, timeout time.Duration) (*Client, TunnelSta
 	return client, tunnel, err
 }
 
-func stringResponse(s string, sc int) R {
+func stringResponse(s string) R {
 	return func(r http.ResponseWriter, q *http.Request) {
 		body := s
-		if sc > 0 {
-			r.WriteHeader(sc)
-		}
+		r.WriteHeader(http.StatusOK)
 
 		if s == "" {
 			// Only user-agent header is used right now.
@@ -189,7 +187,7 @@ func TestTunnelState(t *testing.T) {
 
 	server := multiResponseServer([]resp{
 		{
-			handler: stringResponse(tunnelStateJSON, http.StatusOK),
+			handler: stringResponse(tunnelStateJSON),
 			path:    fmt.Sprintf("/%s/tunnels/%s", tunnelUser, tunID),
 			method:  http.MethodGet,
 		},
@@ -231,7 +229,7 @@ func TestTunnelStateShutdownReason(t *testing.T) {
 
 	server := multiResponseServer([]resp{
 		{
-			handler: stringResponse(tunnelJSON, http.StatusOK),
+			handler: stringResponse(tunnelJSON),
 			path:    fmt.Sprintf("/%s/tunnels/%s", tunnelUser, tunID),
 			method:  http.MethodGet,
 		},
@@ -307,7 +305,7 @@ func TestListTunnels(t *testing.T) {
 	for _, tc := range tt {
 		server := multiResponseServer([]resp{
 			{
-				handler: stringResponse(tunnelsJSON, http.StatusOK),
+				handler: stringResponse(tunnelsJSON),
 				path:    tc.path,
 				method:  http.MethodGet,
 			},
@@ -326,7 +324,7 @@ func TestListAllTunnelStates(t *testing.T) {
 	assert := assertLib.New(t)
 	server := multiResponseServer([]resp{
 		{
-			handler: stringResponse(allTunnelsJSON, http.StatusOK),
+			handler: stringResponse(allTunnelsJSON),
 			path:    fmt.Sprintf("/%s/all_tunnels", tunnelUser),
 			method:  http.MethodGet,
 		},
@@ -390,7 +388,7 @@ func TestListSharedTunnelStates(t *testing.T) {
 		server := multiResponseServer([]resp{
 			{
 				path:    path,
-				handler: stringResponse(listSharedTunnelsJSON, http.StatusOK),
+				handler: stringResponse(listSharedTunnelsJSON),
 				method:  http.MethodGet,
 			},
 		})
@@ -459,7 +457,7 @@ func TestListSharedTunnels(t *testing.T) {
 		server := multiResponseServer([]resp{
 			{
 				path:    path,
-				handler: stringResponse(listSharedTunnelsJSON, http.StatusOK),
+				handler: stringResponse(listSharedTunnelsJSON),
 				method:  http.MethodGet,
 			},
 		})
@@ -498,7 +496,7 @@ func TestListVPNProxiesForUser(t *testing.T) {
 	server := multiResponseServer([]resp{
 		{
 			path:    path,
-			handler: stringResponse(tunnelsJSON, http.StatusOK),
+			handler: stringResponse(tunnelsJSON),
 			method:  http.MethodGet,
 		},
 	})
@@ -536,7 +534,7 @@ func TestListSharedVPNsForUser(t *testing.T) {
 	server := multiResponseServer([]resp{
 		{
 			path:    path,
-			handler: stringResponse(sharedTunnelsJSON, http.StatusOK),
+			handler: stringResponse(sharedTunnelsJSON),
 			method:  http.MethodGet,
 		},
 	})
@@ -579,7 +577,7 @@ func TestListSharedVPNStatesForUser(t *testing.T) {
 	server := multiResponseServer([]resp{
 		{
 			path:    path,
-			handler: stringResponse(sharedTunnelsJSON, http.StatusOK),
+			handler: stringResponse(sharedTunnelsJSON),
 			method:  http.MethodGet,
 		},
 	})
@@ -613,7 +611,7 @@ func TestListVPNStatesForUser(t *testing.T) {
 	server := multiResponseServer([]resp{
 		{
 			path:    path,
-			handler: stringResponse(tunnelsJSON, http.StatusOK),
+			handler: stringResponse(tunnelsJSON),
 			method:  http.MethodGet,
 		},
 	})
@@ -650,7 +648,7 @@ func TestListTunnelStatesForUser(t *testing.T) {
 	server := multiResponseServer([]resp{
 		{
 			path:    path,
-			handler: stringResponse(tunnelsJSON, http.StatusOK),
+			handler: stringResponse(tunnelsJSON),
 			method:  http.MethodGet,
 		},
 	})
@@ -691,7 +689,7 @@ func TestClientShutdown(t *testing.T) {
 	server := multiResponseServer([]resp{
 		{
 			path:    path,
-			handler: stringResponse(fmt.Sprintf("{ \"jobs_running\": %d }", jobsRunning), http.StatusOK),
+			handler: stringResponse(fmt.Sprintf("{ \"jobs_running\": %d }", jobsRunning)),
 			method:  http.MethodDelete,
 		},
 	})
@@ -728,7 +726,7 @@ func TestClientShutdownTunnel(t *testing.T) {
 			server: multiResponseServer([]resp{
 				{
 					path:    path,
-					handler: stringResponse(fmt.Sprintf("{ \"jobs_running\": %d }", jobsRunning), http.StatusOK),
+					handler: stringResponse(fmt.Sprintf("{ \"jobs_running\": %d }", jobsRunning)),
 					method:  http.MethodDelete,
 				},
 			}),
@@ -787,7 +785,7 @@ func TestClientShutdownVPN(t *testing.T) {
 	server := multiResponseServer([]resp{
 		{
 			path:    path,
-			handler: stringResponse(fmt.Sprintf("{ \"jobs_running\": %d }", jobsRunning), http.StatusOK),
+			handler: stringResponse(fmt.Sprintf("{ \"jobs_running\": %d }", jobsRunning)),
 			method:  http.MethodDelete,
 		},
 	})
@@ -818,7 +816,7 @@ func TestClientCreateTunnel(t *testing.T) {
 	server := multiResponseServer([]resp{
 		{
 			path:    fmt.Sprintf("/%s/tunnels", tunnelUser),
-			handler: stringResponse(statusRunningJSON, http.StatusOK),
+			handler: stringResponse(statusRunningJSON),
 			method:  http.MethodPost,
 		},
 	})
@@ -833,12 +831,12 @@ func TestClientCreateVPN(t *testing.T) {
 	server := multiResponseServer([]resp{
 		{
 			path:    fmt.Sprintf("/%s/tunnels", otherUsername),
-			handler: stringResponse(statusRunningJSON, http.StatusOK),
+			handler: stringResponse(statusRunningJSON),
 			method:  http.MethodPost,
 		},
 		{
 			path:    fmt.Sprintf("/%s/tunnels/%s", otherUsername, tunID),
-			handler: stringResponse(statusRunningJSON, http.StatusOK),
+			handler: stringResponse(statusRunningJSON),
 			method:  http.MethodGet,
 		},
 	})
@@ -868,12 +866,12 @@ func TestClientCreateNoIPReceived(t *testing.T) {
 	server := multiResponseServer([]resp{
 		{
 			path:    fmt.Sprintf("/%s/tunnels", tunnelUser),
-			handler: stringResponse(statusRunningJSON, http.StatusOK),
+			handler: stringResponse(statusRunningJSON),
 			method:  http.MethodPost,
 		},
 		{
 			path:    fmt.Sprintf("/%s/tunnels/%s", tunnelUser, tunID),
-			handler: stringResponse(statusRunningNoIPJSON, http.StatusOK),
+			handler: stringResponse(statusRunningNoIPJSON),
 			method:  http.MethodGet,
 		},
 	})
@@ -889,12 +887,12 @@ func TestClientCreateNullIpReceived(t *testing.T) {
 	server := multiResponseServer([]resp{
 		{
 			path:    fmt.Sprintf("/%s/tunnels", tunnelUser),
-			handler: stringResponse(statusRunningJSON, http.StatusOK),
+			handler: stringResponse(statusRunningJSON),
 			method:  http.MethodPost,
 		},
 		{
 			path:    fmt.Sprintf("/%s/tunnels/%s", tunnelUser, tunID),
-			handler: stringResponse(statusRunningNullIPJSON, http.StatusOK),
+			handler: stringResponse(statusRunningNullIPJSON),
 			method:  http.MethodGet,
 		},
 	})
@@ -964,12 +962,12 @@ func TestUpdateClientStatusError(t *testing.T) {
 	server := multiResponseServer([]resp{
 		{
 			path:    fmt.Sprintf("/%s/tunnels", tunnelUser),
-			handler: stringResponse(statusRunningJSON, http.StatusOK),
+			handler: stringResponse(statusRunningJSON),
 			method:  http.MethodPost,
 		},
 		{
 			path:    fmt.Sprintf("/%s/tunnels/%s", tunnelUser, tunID),
-			handler: stringResponse(statusRunningJSON, http.StatusOK),
+			handler: stringResponse(statusRunningJSON),
 			method:  http.MethodGet,
 		},
 	})
@@ -992,7 +990,7 @@ func TestGetUpdatesEmpty(t *testing.T) {
 	server := multiResponseServer([]resp{
 		{
 			path:    fmt.Sprintf("/%s/tunnels/info/updates", tunnelUser),
-			handler: stringResponse("{}", http.StatusOK),
+			handler: stringResponse("{}"),
 			method:  http.MethodGet,
 		},
 	})
@@ -1023,7 +1021,7 @@ func TestGetUpdates(t *testing.T) {
 	server := multiResponseServer([]resp{
 		{
 			path:    fmt.Sprintf("/%s/tunnels/info/updates", tunnelUser),
-			handler: stringResponse(string(infoJSON), http.StatusOK),
+			handler: stringResponse(string(infoJSON)),
 			method:  http.MethodGet,
 		},
 	})
@@ -1048,7 +1046,7 @@ func TestGetVersions(t *testing.T) {
 	server := multiResponseServer([]resp{
 		{
 			path:    "/public/tunnels/info/versions",
-			handler: stringResponse(versionsJSON, http.StatusOK),
+			handler: stringResponse(versionsJSON),
 			method:  http.MethodGet,
 		},
 	})
@@ -1068,90 +1066,13 @@ func TestGetVersions(t *testing.T) {
 		"Client.GetVersions unexpected value %+v\n", scVersions)
 }
 
-func TestRetryableCall(t *testing.T) {
-	t.Skip("Skipping test that makes external calls")
-
-	resps := []resp{}
-
-	for _, retryableStatusCode := range RetryableStatusCodes {
-		resps = append(resps, resp{
-			path:    "/",
-			handler: stringResponse("OK", retryableStatusCode),
-			method:  http.MethodGet,
-		})
-	}
-
-	// Create a mock server that responds with the example info JSON.
-	server := multiResponseServer(resps)
-	defer server.Close()
-
-	client := &Client{
-		BaseURL: server.URL,
-	}
-
-	for _, retryableStatusCode := range RetryableStatusCodes {
-		time.Sleep(100 * time.Millisecond)
-
-		if err := client.executeRequest(
-			context.Background(),
-			http.MethodGet,
-			fmt.Sprintf("https://httpbin.org/status/%d", retryableStatusCode),
-			nil,
-			nil,
-		); err != nil {
-			var cE *ClientError
-			if !errors.As(err, &cE) {
-				t.Errorf("client.executeRequest ClientError is expected, found %+v", err)
-			}
-
-			if cE.Retryable != true {
-				t.Errorf("Retryable, got: %t expected: %t", cE.Retryable, true)
-			}
-
-			if cE.StatusCode != retryableStatusCode {
-				t.Errorf("Status code, got: %d expected: %d", cE.StatusCode, retryableStatusCode)
-			}
-		}
-	}
-}
-
-func TestNonRetryableCall(t *testing.T) {
-	t.Skip("Skipping test that makes external calls")
-
-	assert := assertLib.New(t)
-	client := &Client{
-		UserAgent: "test",
-	}
-
-	nonRetryableStatusCodes := []int{
-		http.StatusForbidden,
-		http.StatusGone,
-		http.StatusTeapot,
-		http.StatusLoopDetected,
-	}
-
-	for _, nonRetryableStatusCode := range nonRetryableStatusCodes {
-		err := client.executeRequest(context.Background(), http.MethodGet, fmt.Sprintf("https://httpbin.org/status/%d", nonRetryableStatusCode), nil, nil)
-		assert.Error(err, "Client.executeRequest error is expected")
-		var cE *ClientError
-		if !errors.As(err, &cE) {
-			t.Errorf("client.executeRequest ClientError is expected, found %+v", err)
-		}
-
-		assert.Falsef(cE.Retryable, "Retryable, got: %t expected: %t", cE.Retryable, true)
-
-		assert.Equalf(nonRetryableStatusCode, cE.StatusCode,
-			"Status code, got: %d expected: %d", cE.StatusCode, nonRetryableStatusCode)
-	}
-}
-
 func TestClientRequestHeaders(t *testing.T) {
 	assert := assertLib.New(t)
 	r := make(map[string]string)
 
 	server := multiResponseServer([]resp{
 		{
-			handler: stringResponse("", http.StatusOK),
+			handler: stringResponse(""),
 			path:    "/",
 			method:  http.MethodGet,
 		},

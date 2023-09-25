@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/saucelabs/tunnelrest-go/util"
 )
@@ -16,31 +15,11 @@ var (
 	ErrRequestFailed  = errors.New("HTTP request failed")
 )
 
-// RetryableErrorMessages is a list of non-HTTP status code error messages that
-// should be retried.
-var RetryableErrorMessages = []string{}
-
-// RetryableStatusCodes is a list of "usually accepted" retryable HTTP status
-// codes.
-// For more, see:
-// - https://stackoverflow.com/questions/47680711/which-http-errors-should-never-trigger-an-automatic-retry
-// - https://softwareengineering.stackexchange.com/questions/382594/should-you-retry-500-api-errors
-var RetryableStatusCodes = []int{
-	http.StatusBadGateway,
-	http.StatusConflict,
-	http.StatusGatewayTimeout,
-	http.StatusInternalServerError,
-	http.StatusRequestTimeout,
-	http.StatusServiceUnavailable,
-	http.StatusTooManyRequests,
-}
-
 // ClientError definition.
 type ClientError struct {
 	Err error
 	// Message, if provided, will be used instead of the usual message.
 	Message        string
-	Retryable      bool
 	ServerResponse string
 	StatusCode     int
 	URL            string
@@ -87,44 +66,7 @@ func (cE *ClientError) Short() string {
 var MissingRegionsInformation = func(url string) *ClientError {
 	return &ClientError{
 		Err:        ErrMissingRegions,
-		Retryable:  false,
 		StatusCode: http.StatusInternalServerError,
 		URL:        util.SanitizedRawURL(url),
-	}
-}
-
-// isErrorRetryable returns true when the client error is retryable.
-func isErrorRetryable(cE *ClientError) {
-	// Should only verify if there is a cE.
-	if cE == nil {
-		return
-	}
-
-	//////
-	// Error message introspection-based verification.
-	//////
-
-	if cE.Err != nil {
-		for _, retryableErrorMessage := range RetryableErrorMessages {
-			if strings.Contains(cE.Err.Error(), retryableErrorMessage) {
-				cE.Retryable = true
-
-				return
-			}
-		}
-	}
-
-	//////
-	// HTTP status code-based verification.
-	//////
-
-	// Should only verify if a status code is defined.
-	if cE.StatusCode != 0 {
-		// Should only be retryable if status code is in RetryableStatusCodes list.
-		for _, retryableStatusCode := range RetryableStatusCodes {
-			if cE.StatusCode == retryableStatusCode {
-				cE.Retryable = true
-			}
-		}
 	}
 }
