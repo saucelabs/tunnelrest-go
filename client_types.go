@@ -56,6 +56,7 @@ type CreateTunnelRequestV4 struct {
 type CreateTunnelRequestV5 struct {
 	TunnelIdentifier string `json:"tunnel_identifier"`
 	Protocol         string `json:"protocol"`
+	Shared           string `json:"shared"`
 	SharedTunnel     bool   `json:"shared_tunnel"`
 	TunnelPool       bool   `json:"tunnel_pool"`
 
@@ -84,6 +85,7 @@ type TunnelState struct {
 	IP               string   `json:"ip_address,omitempty"`
 	Metadata         Metadata `json:"metadata,omitempty"`
 	Owner            string   `json:"owner"`
+	Shared           string   `json:"shared,omitempty"`
 	SharedTunnel     bool     `json:"shared_tunnel"`
 	IsReady          bool     `json:"is_ready"`
 	ShutdownReason   string   `json:"shutdown_reason,omitempty"`
